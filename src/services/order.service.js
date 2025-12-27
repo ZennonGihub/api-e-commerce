@@ -1,7 +1,7 @@
-import boom from ('@hapi/boom');
-import { models } from ('./../libs/sequelize');
+import boom from '@hapi/boom';
+import { models } from './../libs/sequelize.js';
 
-class OrderService {
+export class OrderService {
   constructor() {}
 
   async create(data) {
@@ -68,5 +68,3 @@ class OrderService {
     return id;
   }
 }
-
-module.exports = OrderService;

@@ -1,35 +1,22 @@
-require('dotenv').config();
+import pkg from 'pg';
+const { Pool } = pkg;
+import { config } from '../config/config.js';
 
-const { Pool } = require('pg');
-
-const {
-  pgHost,
-  pgDatabase,
-  pgUser,
-  pgPassword,
-} = require('./../config/config');
-
-const pool = new Pool({
-  host: pgHost,
-  database: pgDatabase,
-  username: pgUser,
-  password: pgPassword,
-  port: 5432,
+const options = {
+  connectionString: config.urldb,
   ssl: {
-    require: true,
+    rejectUnauthorized: false,
   },
+};
+
+const pool = new Pool(options);
+
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('Error conectando a Neon:', err);
+  } else {
+    console.log('CONEXIÓN EXITOSA A NEON:', res.rows[0]);
+  }
 });
 
-console.log('CONEXION EXITOSA', pool);
-
-async function getPgVersion() {
-  const client = await pool.connect();
-  try {
-    const result = await client.query('SELECT version()');
-    console.log(result.rows[0]);
-  } finally {
-    client.release();
-  }
-}
-
-getPgVersion();
+export default pool;

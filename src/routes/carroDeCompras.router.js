@@ -1,17 +1,17 @@
 import express from 'express';
-import validatorHandler from '../middlewares/validator.handler';
+import { validatorHandler } from './../middlewares/validator.handler.js';
 import {
   updateItemSchema,
   addItemSchema,
-} from '../schemas/carroDeCompras.schema';
+} from '../schemas/carroDeCompras.schema.js';
 import passport from 'passport';
-import { checkRoles } from '../middlewares/auth.handler';
+import { checkRoles } from './../middlewares/auth.handler.js';
 import {
   getUserCart,
   addedProduct,
   updatedCart,
-} from '../controller/carroDeCompras.router';
-import { removedItem } from '../controller/carroDeCompras.controller';
+  removedItem,
+} from '../controller/carroDeCompras.controller.js';
 
 const router = express.Router();
 
@@ -45,4 +45,4 @@ router.delete(
   removedItem,
 );
 
-module.exports = router;
+export default router;

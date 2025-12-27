@@ -1,4 +1,4 @@
-import joi from ('joi');
+import joi from 'joi';
 
 const id = joi.number().integer();
 const name = joi.string().min(3).max(15);
@@ -11,35 +11,33 @@ const categoryId = joi.number().integer();
 const limit = joi.number().integer();
 const offset = joi.number().integer();
 
-const createProductSchema = joi.object({
+export const createProductSchema = joi.object({
   name: name.required(),
   price: price.required(),
   description: description.required(),
   image: image.required(),
-  categoryId: categoryId.required()
+  categoryId: categoryId.required(),
 });
 
-const updateProductSchema = joi.object({
+export const updateProductSchema = joi.object({
   name: name,
   price: price,
   image: image,
   description: description,
-  categoryId: categoryId
+  categoryId: categoryId,
 });
 
-const getProductSchema = joi.object({
+export const getProductSchema = joi.object({
   id: id.required(),
 });
 
-const queryProductSchema = joi.object({
+export const queryProductSchema = joi.object({
   limit,
   offset,
   price,
   priceMin,
   priceMax: joi.when('priceMin', {
     is: joi.number().integer(),
-    then: joi.required()
-  })
+    then: joi.required(),
+  }),
 });
-
-module.exports = { createProductSchema, updateProductSchema, getProductSchema, queryProductSchema }

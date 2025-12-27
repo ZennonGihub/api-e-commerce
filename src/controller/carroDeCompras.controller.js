@@ -1,7 +1,6 @@
-import express  from('express');
-import CartUsers  from('./../services/carroDeCompras.services');
-import boom  from('@hapi/boom');
-
+import express from 'express';
+import { CartUsers } from '../services/carroDeCompras.service.js';
+import boom from '@hapi/boom';
 
 const router = express.Router();
 const service = new CartUsers();
@@ -51,5 +50,3 @@ export const removedItem = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = router;

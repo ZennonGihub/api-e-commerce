@@ -1,7 +1,7 @@
-import express from ('express');
-import passport from ('passport');
-import { checkRoles } from ('../middlewares/auth.handler');
-import { getMyOrder } from ('../controller/profile.controller');
+import express from 'express';
+import passport from 'passport';
+import { checkRoles } from '../middlewares/auth.handler.js';
+import { getMyOrder } from '../controller/profile.controller.js';
 
 const router = express.Router();
 
@@ -11,5 +11,4 @@ router.get(
   checkRoles('admin', 'seller', 'user'),
   getMyOrder,
 );
-
-module.exports = router;
+export default router;

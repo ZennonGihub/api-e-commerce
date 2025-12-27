@@ -1,8 +1,8 @@
-import express  from('express');
-import Category  from('../services/categories.services');
+import express from 'express';
+import { CategoryService } from '../services/categorias.service.js';
 
 const router = express.Router();
-const service = new Category();
+const service = new CategoryService();
 
 export const getListCategories = async (req, res, next) => {
   try {
@@ -53,5 +53,3 @@ export const removedCategory = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = router;

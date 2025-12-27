@@ -1,7 +1,7 @@
-import boom from ('@hapi/boom');
-import { models } from ('../libs/sequelize');
+import boom from '@hapi/boom';
+import { models } from '../libs/sequelize.js';
 
-class cartUsers {
+export class CartUsers {
   constructor() {}
 
   async getUserCart() {
@@ -47,4 +47,3 @@ class cartUsers {
     return { message: 'Producto eliminado del carrito' };
   }
 }
-module.exports = cartUsers;

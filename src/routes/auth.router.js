@@ -1,8 +1,12 @@
 import express from 'express';
 import passport from 'passport';
-import AuthService from './../services/auth.service';
-import { createdUser } from '../controller/usuarios.controller';
-import { recoveryToken, changePassword } from '../controller/auth.controller';
+import { AuthService } from './../services/auth.service.js';
+import { createdUser } from '../controller/usuarios.controller.js';
+import {
+  recoveryToken,
+  changePassword,
+  refreshToken,
+} from '../controller/auth.controller.js';
 
 const service = new AuthService();
 const router = express();
@@ -27,7 +31,7 @@ router.post(
   },
 );
 
-router.post('/register', validatorHandler(createUser, 'body'), createdUser);
+router.post('/register', createdUser);
 
 router.post('/refresh', refreshToken);
 
@@ -35,4 +39,4 @@ router.post('/recovery', recoveryToken);
 
 router.post('/change-password', changePassword);
 
-module.exports = router;
+export default router;

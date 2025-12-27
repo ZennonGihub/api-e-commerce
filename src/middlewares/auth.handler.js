@@ -1,7 +1,7 @@
 import boom from '@hapi/boom';
 import { config } from '../config/config.js';
 
-function checkApiKey(req, res, next) {
+export function checkApiKey(req, res, next) {
   const apiKey = req.headers['api'];
   if (apiKey === config.apiKey) {
     next();
@@ -10,7 +10,7 @@ function checkApiKey(req, res, next) {
   }
 }
 
-function checkRoles(...roles) {
+export function checkRoles(...roles) {
   return (req, res, next) => {
     const user = req.user;
     console.log(user.role);
@@ -21,4 +21,3 @@ function checkRoles(...roles) {
     }
   };
 }
-module.exports = { checkApiKey, checkRoles };

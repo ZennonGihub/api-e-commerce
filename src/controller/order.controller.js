@@ -1,5 +1,5 @@
-import express  from ('express');
-import OrderService  from ('../services/order.service');
+import express from 'express';
+import { OrderService } from '../services/order.service.js';
 
 const router = express.Router();
 const service = new OrderService();
@@ -33,5 +33,3 @@ export const addItemOrder = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = router;

@@ -1,10 +1,10 @@
-const { Model, DataTypes, Sequelize } = require('sequelize');
+import { Model, DataTypes, Sequelize } from 'sequelize';
 
-const { CATEGORY_TABLE } = require('./category.model');
+const CATEGORY_TABLE = 'categories';
 
 const PRODUCT_TABLE = 'products';
 
-const ProductSchema = {
+export const ProductSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -42,11 +42,11 @@ const ProductSchema = {
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'RESTRICT', // Impide eliminar la categoria si hay productos en ella
+    onDelete: 'RESTRICT',
   },
 };
 
-class Product extends Model {
+export class Product extends Model {
   static associate(models) {
     this.belongsTo(models.Category, {
       as: 'Category',
@@ -64,5 +64,3 @@ class Product extends Model {
     };
   }
 }
-
-module.exports = { Product, ProductSchema, PRODUCT_TABLE };

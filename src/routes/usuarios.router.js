@@ -1,5 +1,5 @@
 import express from 'express';
-import validatorHandler from '../middlewares/validator.handler.js';
+import { validatorHandler } from '../middlewares/validator.handler.js';
 import {
   createUser,
   updateUser,
@@ -29,7 +29,7 @@ router.patch(
   '/cambiarDatos/:id',
   validatorHandler(getUser, 'params'),
   validatorHandler(updateUser, 'body'),
-  updateUser,
+  updatedUser,
 );
 
-module.exports = router;
+export default router;

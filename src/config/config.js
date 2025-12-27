@@ -1,6 +1,6 @@
-require('dotenv').config();
+import 'dotenv/config';
 
-const config = {
+export const config = {
   env: process.env.NODE_ENV || 'dev',
   port: process.env.PORT || 3000,
   DbUser: process.env.DB_USER,
@@ -15,12 +15,9 @@ const config = {
   pgDatabase: process.env.PGDATABASE,
   pgUser: process.env.PGUSER,
   pgPassword: process.env.PGPASSWORD,
+  urldb: process.env.URL_DB,
   jwtRefreshToken: process.env.REFRESH_TOKEN_SECRET,
   emailPassword: process.env.EMAIL_PASSWORD,
   emailUser: process.env.USER_EMAIL,
   jwtRecovery: process.env.JWT_RECOVERY,
 };
-
-console.log(config);
-
-module.exports = { config };

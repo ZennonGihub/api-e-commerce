@@ -1,8 +1,9 @@
-const Sequelize = require('sequelize');
-const { config } = require('../config/config');
-const setupModels = require('../db/models/index');
-require('pg');
-require('pg-hstore');
+import { Sequelize } from 'sequelize';
+import { config } from '../config/config.js';
+import { setupModels } from '../db/models/index.js';
+
+import 'pg';
+import 'pg-hstore';
 
 const URI = config.url;
 
@@ -14,7 +15,7 @@ console.log('CONEXION DB (sequelize)', URI);
 //const USER = encodeURIComponent(config.DbUser);
 //const PASSWORD = encodeURIComponent(config.dbPassword);
 
-const sequelize = new Sequelize(URI, {
+export const sequelize = new Sequelize(URI, {
   dialect: 'postgres',
   logging: false,
   schema: 'public',
@@ -26,6 +27,5 @@ const sequelize = new Sequelize(URI, {
   },
 });
 
+export const models = sequelize.models;
 setupModels(sequelize);
-
-module.exports = sequelize;

@@ -1,6 +1,5 @@
-import express  from ('express');
-import CustomerService  from ('./../services/customers.services');
-
+import express from 'express';
+import { CustomerService } from './../services/customers.service.js';
 
 const router = express.Router();
 const service = new CustomerService();
@@ -48,5 +47,3 @@ export const removedCustomer = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = router;

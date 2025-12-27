@@ -1,8 +1,8 @@
-import boom from ('@hapi/boom');
-import { models } from ('../libs/sequelize');
-import bcrypt from ('bcrypt');
+import boom from '@hapi/boom';
+import { models } from '../libs/sequelize.js';
+import bcrypt from 'bcrypt';
 
-class CustomerService {
+export class CustomerService {
   constructor() {}
 
   async create(data) {
@@ -58,4 +58,3 @@ class CustomerService {
     return { rta: true };
   }
 }
-module.exports = CustomerService;

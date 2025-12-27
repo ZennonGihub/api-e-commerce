@@ -1,4 +1,5 @@
-import boom  from ('@hapi/boom');
+import boom from '@hapi/boom';
+import { AuthService } from '../services/auth.service.js';
 
 const service = new AuthService();
 

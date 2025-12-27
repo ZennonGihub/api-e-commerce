@@ -1,13 +1,13 @@
-import UserService from ('./usuarios.service');
-import boom from ('@hapi/boom');
-import bcrypt from ('bcrypt');
-import jwt from ('jsonwebtoken');
-import { config } from ('./../config/config');
-import nodemailer from ('nodemailer');
+import { UserServices } from './usuarios.service.js';
+import boom from '@hapi/boom';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { config } from './../config/config.js';
+import nodemailer from 'nodemailer';
 
-const service = new UserService();
+const service = new UserServices();
 
-class AuthService {
+export class AuthService {
   async getUser(email, password) {
     const user = await service.findByEmail(email);
     const isMatch = await bcrypt.compare(password, user.password);
@@ -80,5 +80,3 @@ class AuthService {
     return { message: 'Mail sent' };
   }
 }
-
-module.exports = AuthService;

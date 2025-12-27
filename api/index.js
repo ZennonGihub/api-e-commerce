@@ -1,5 +1,5 @@
 import express from 'express';
-import routerApi from '../src/routes/index.router.js';
+import { routerApi } from '../src/routes/index.router.js';
 import cors from 'cors';
 import { checkApiKey } from '../src/middlewares/auth.handler.js';
 import cookieParser from 'cookie-parser';
@@ -34,7 +34,7 @@ const options = {
 };
 
 app.use(cors(options));
-require('./../src/util/index');
+import './../src/util/index.js';
 
 app.get('/', (req, res) => {
   res.send('Api funcionando de manera exitosa');
@@ -47,4 +47,3 @@ app.use(logErrors);
 app.use(ormErrorHandler);
 app.use(boomErrorHandler);
 app.use(errorHandler);
-module.exports = app;

@@ -1,11 +1,11 @@
-const { Model, DataTypes, Sequelize } = require('sequelize');
+import { Model, DataTypes, Sequelize } from 'sequelize';
 
-const { ORDER_TABLE } = require('./order.model');
-const { PRODUCT_TABLE } = require('./products.model');
+const PRODUCT_TABLE = 'products';
+const ORDER_TABLE = 'orders';
 
-const ORDER_PRODUCT_TABLE = 'orders_product';
+export const ORDER_PRODUCT_TABLE = 'orders_product';
 
-const OrderProductSchema = {
+export const OrderProductSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -46,7 +46,7 @@ const OrderProductSchema = {
   },
 };
 
-class OrderProduct extends Model {
+export class OrderProduct extends Model {
   static associate(models) {
     this.belongsTo(models.Order, {
       as: 'order',
@@ -68,5 +68,3 @@ class OrderProduct extends Model {
     };
   }
 }
-
-module.exports = { OrderProduct, OrderProductSchema, ORDER_PRODUCT_TABLE };

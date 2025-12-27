@@ -1,6 +1,5 @@
-import express  from('express');
-import UserServices  from('../services/usuarios.service');
-
+import express from 'express';
+import { UserServices } from '../services/usuarios.service.js';
 
 const router = express.Router();
 const service = new UserServices();
@@ -54,5 +53,3 @@ export const updatedUser = async (req, res, next) => {
     next(error);
   }
 };
-
-module.exports = router;

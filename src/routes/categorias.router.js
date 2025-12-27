@@ -1,11 +1,11 @@
 import express from 'express';
-import validatorHandler from '../middlewares/validator.handler';
-import { checkRoles } from '../middlewares/auth.handler';
+import { validatorHandler } from '../middlewares/validator.handler.js';
+import { checkRoles } from '../middlewares/auth.handler.js';
 import {
   createCategorySchema,
   updateCategorySchema,
   getCategorySchema,
-} from '../schemas/category.schema';
+} from '../schemas/categoria.schema.js';
 import passport from 'passport';
 import {
   getOneCategory,
@@ -13,7 +13,7 @@ import {
   createCategory,
   updatedCategory,
   removedCategory,
-} from '../controller/categorias.controller';
+} from '../controller/categorias.controller.js';
 
 const router = express.Router();
 
@@ -50,4 +50,4 @@ router.delete(
   removedCategory,
 );
 
-module.exports = router;
+export default router;

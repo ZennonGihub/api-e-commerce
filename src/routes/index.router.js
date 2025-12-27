@@ -10,7 +10,7 @@ import orderRouter from './order.router.js';
 import authRouter from './auth.router.js';
 import profileRouter from './profile.router.js';
 
-function routerApi(app) {
+export function routerApi(app) {
   const router = express.Router();
   router.use(checkApiKey);
 
@@ -25,4 +25,3 @@ function routerApi(app) {
   router.use('/auth', authRouter);
   router.use('/profile', profileRouter);
 }
-module.exports = routerApi;

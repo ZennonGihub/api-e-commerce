@@ -1,10 +1,8 @@
-const { Strategy } = require('passport-local');
-const bcrypt = require('bcrypt');
-const boom = require('@hapi/boom');
-const AuthService = require('./../../services/auth.service');
+import { Strategy } from 'passport-local';
+import { AuthService } from './../../services/auth.service.js';
 const service = new AuthService();
 
-const localStrategy = new Strategy(
+export const localStrategy = new Strategy(
   {
     usernameField: 'email',
     passwordField: 'password',
@@ -16,6 +14,5 @@ const localStrategy = new Strategy(
     } catch (error) {
       done(error, false);
     }
-  }
+  },
 );
-module.exports = localStrategy;

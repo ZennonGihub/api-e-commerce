@@ -1,8 +1,8 @@
-const { Model, DataTypes, Sequelize } = require('sequelize');
+import { Model, DataTypes, Sequelize } from 'sequelize';
 
-const USER_TABLE = 'users';
+export const USER_TABLE = 'users';
 
-const UserSchema = {
+export const UserSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -46,7 +46,7 @@ const UserSchema = {
   },
 };
 
-class User extends Model {
+export class User extends Model {
   static associate(models) {
     this.hasOne(models.Customer, {
       as: 'customer',
@@ -65,5 +65,3 @@ class User extends Model {
     };
   }
 }
-
-module.exports = { USER_TABLE, UserSchema, User };

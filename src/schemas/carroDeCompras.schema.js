@@ -1,4 +1,4 @@
-import joi from ('joi');
+import joi from 'joi';
 
 const cartId = joi.string();
 const userId = joi.string().alphanum().min(3).max(10).required();

@@ -1,18 +1,18 @@
 import express from 'express';
-import validatorHandler from '../middlewares/validator.handler';
+import { validatorHandler } from '../middlewares/validator.handler.js';
 import {
   createCustomerSchema,
   updateCustomerSchema,
   getCustomerSchema,
-} from './../schemas/customer.schema';
-import { checkRoles } from '../middlewares/auth.handler';
+} from './../schemas/customer.schema.js';
+import { checkRoles } from '../middlewares/auth.handler.js';
 import passport from 'passport';
 import {
   getList,
   createdCustomer,
   updatedCustomer,
   removedCustomer,
-} from '../controller/customer.controller';
+} from '../controller/customer.controller.js';
 
 const router = express.Router();
 
@@ -48,4 +48,4 @@ router.delete(
   removedCustomer,
 );
 
-module.exports = router;
+export default router;

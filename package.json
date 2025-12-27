@@ -1,0 +1,59 @@
+{
+  "name": "e-commerce",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon api/index.js",
+    "lint": "eslint",
+    "seed:all": "sequelize-cli db:seed:all",
+    "seed:undo": "sequelize-cli db:seed:undo:all",
+    "migrations:generate": "sequelize-cli migration:generate --name",
+    "migrations:run": "sequelize-cli db:migrate",
+    "migrations:revert": "sequelize-cli db:migrate:undo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Esta es una **API RESTful** construida para gestionar un e-commerce. La cual permite a los clientes y administradores interactuar con productos, categorias y usuarios. La api esta diseñada para ser una base robusta para una aplicacion o e-commerce, manejando la logica de negocio y la persistencia de los datos",
+  "dependencies": {
+    "@faker-js/faker": "^9.4.0",
+    "@hapi/boom": "^10.0.1",
+    "@neondatabase/serverless": "^1.0.2",
+    "apollo-server-express": "^3.13.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "faker": "^6.6.6",
+    "graphql": "^16.11.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.5",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
+    "swagger-ui-dist": "^5.29.3",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
+  },
+  "eslintConfig": {
+    "extends": "standard"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZennonGihub/Api-E-Commerce.git"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/ZennonGihub/Api-E-Commerce/issues"
+  },
+  "homepage": "https://github.com/ZennonGihub/Api-E-Commerce#readme"
+}

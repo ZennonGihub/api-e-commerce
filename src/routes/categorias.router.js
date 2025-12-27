@@ -1,0 +1,53 @@
+import express from 'express';
+import validatorHandler from '../middlewares/validator.handler';
+import { checkRoles } from '../middlewares/auth.handler';
+import {
+  createCategorySchema,
+  updateCategorySchema,
+  getCategorySchema,
+} from '../schemas/category.schema';
+import passport from 'passport';
+import {
+  getOneCategory,
+  getListCategories,
+  createCategory,
+  updatedCategory,
+  removedCategory,
+} from '../controller/categorias.controller';
+
+const router = express.Router();
+
+router.get('/', getListCategories);
+
+router.get(
+  '/:id',
+  validatorHandler(getCategorySchema, 'params'),
+  getOneCategory,
+);
+
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
+  validatorHandler(createCategorySchema, 'body'),
+  createCategory,
+);
+
+router.patch(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
+  validatorHandler(updateCategorySchema, 'body'),
+  validatorHandler(getCategorySchema, 'params'),
+  updatedCategory,
+);
+
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
+  validatorHandler(getCategorySchema, 'params'),
+  removedCategory,
+);
+
+module.exports = router;

@@ -1,0 +1,1024 @@
+# Documentación completa
+openapi: 3.0.0
+info:
+  title: API E-commerce
+  description: Documentación de la API para la tienda en línea. Aquí encontrarás todos los endpoints disponibles para gestionar productos, usuarios, órdenes y más.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor de desarrollo
+
+# etiquetas para agrupar los endpoints
+tags:
+  - name: Auth
+    description: Operaciones de autenticación, como login, refresh y recuperación de contraseña.
+  - name: Categories
+    description: Operaciones para gestionar las categorías de productos.
+  - name: Customers
+    description: Operaciones para gestionar los perfiles de clientes.
+  - name: Orders
+    description: Operaciones para gestionar las órdenes de compra.
+  - name: Profile
+    description: Operaciones relacionadas con el perfil del usuario autenticado.
+  - name: Products
+    description: Operaciones relacionadas con los productos de la tienda.
+  - name: Users
+    description: Operaciones para gestionar usuarios.
+
+paths:
+  # --- Endpoints de Autenticación ---
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login de usuario
+      description: Autentica a un usuario con su email y contraseña. Retorna un `accessToken` para las peticiones y un `refreshToken` que se guarda en una cookie httpOnly.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        "200":
+          description: OK. Autenticación exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Unauthorized. Credenciales incorrectas.
+
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Refrescar token de acceso
+      description: Utiliza el `refreshToken` enviado en una cookie httpOnly para generar un nuevo `accessToken` de corta duración (15 min).
+      responses:
+        "200":
+          description: OK. Nuevo token de acceso generado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "403":
+          description: Forbidden. No se encontró un `refreshToken` en las cookies o el usuario es inválido.
+
+  /auth/recovery:
+    post:
+      tags:
+        - Auth
+      summary: Recuperar contraseña
+      description: Envía un email al usuario con un link para recuperar su contraseña.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "customer@mail.com"
+      responses:
+        "200":
+          description: OK. Si el email existe, se ha enviado el correo de recuperación.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Mail de recuperación enviado"
+
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: Cambiar contraseña
+      description: Permite al usuario establecer una nueva contraseña utilizando el token recibido por email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePassword"
+      responses:
+        "200":
+          description: OK. Contraseña cambiada exitosamente.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Contraseña actualizada"
+        "401":
+          description: Unauthorized. El token es inválido o ha expirado.
+
+    # --- Endpoints de Categorías ---
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Obtener todas las categorías
+      description: Retorna una lista de todas las categorías de productos.
+      responses:
+        "200":
+          description: OK. Lista de categorías obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      tags:
+        - Categories
+      summary: Crear una nueva categoría
+      description: Crea una nueva categoría. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategory"
+      responses:
+        "201":
+          description: Creado. Categoría creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          description: Unauthorized.
+
+  /categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Obtener una categoría por su ID
+      description: Retorna los detalles de una categoría específica.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la categoría a obtener.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Categoría encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Not Found.
+
+    patch:
+      tags:
+        - Categories
+      summary: Actualizar una categoría
+      description: Actualiza los datos de una categoría. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la categoría a actualizar.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategory"
+      responses:
+        "200":
+          description: OK. Categoría actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          description: Unauthorized.
+        "404":
+          description: Not Found.
+
+    delete:
+      tags:
+        - Categories
+      summary: Eliminar una categoría
+      description: Elimina una categoría. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la categoría a eliminar.
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: OK. Categoría eliminada.
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 5
+        "401":
+          description: Unauthorized.
+        "404":
+          description: Not Found.
+
+  # --- Endpoints de Clientes (Customers) ---
+  /customers:
+    get:
+      tags:
+        - Customers
+      summary: Obtener todos los perfiles de clientes
+      description: Retorna una lista de todos los perfiles de clientes. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK. Lista de clientes obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Customer"
+        "401":
+          description: Unauthorized.
+
+    post:
+      tags:
+        - Customers
+      summary: Crear un nuevo perfil de cliente
+      description: Crea un nuevo perfil de cliente asociado a un usuario existente. Requiere autenticación.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomer"
+      responses:
+        "201":
+          description: Creado. El perfil de cliente fue creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "401":
+          description: Unauthorized.
+
+  /customers/{id}:
+    patch:
+      tags:
+        - Customers
+      summary: Actualizar un perfil de cliente
+      description: "Actualiza los datos de un perfil de cliente. Un usuario con rol 'customer' solo puede actualizar su propio perfil. Un 'admin' puede actualizar cualquiera."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente a actualizar.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCustomer"
+      responses:
+        "201":
+          description: Actualizado. Perfil de cliente actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "401":
+          description: Unauthorized.
+        "403":
+          description: Forbidden. No tienes permisos para esta acción.
+        "404":
+          description: Not Found.
+
+    delete:
+      tags:
+        - Customers
+      summary: Eliminar un perfil de cliente
+      description: "Elimina un perfil de cliente. Un usuario con rol 'customer' solo puede eliminar su propio perfil. Un 'admin' puede eliminar cualquiera."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del cliente a eliminar.
+          schema:
+            type: integer
+      responses:
+        "201":
+          description: OK. Perfil de cliente eliminado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 2
+        "401":
+          description: Unauthorized.
+        "403":
+          description: Forbidden. No tienes permisos para esta acción.
+        "404":
+          description: Not Found.
+
+  # --- Endpoints de Órdenes (Orders) ---
+  /orders/{id}:
+    get:
+      tags:
+        - Orders
+      summary: Obtener una orden por su ID
+      description: Retorna los detalles de una orden de compra específica. Requiere autenticación.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la orden a obtener.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Orden encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized.
+        "404":
+          description: Not Found.
+
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: Crear una nueva orden
+      description: Crea una nueva orden de compra para el usuario autenticado. El ID del usuario se obtiene del token JWT.
+      security:
+        - bearerAuth: []
+      responses:
+        "201":
+          description: Creado. Orden creada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized.
+
+  /orders/add-item:
+    post:
+      tags:
+        - Orders
+      summary: Agregar un ítem a una orden
+      description: Agrega un producto a una orden de compra existente.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddItemToOrder"
+      responses:
+        "201":
+          description: Creado. Ítem agregado a la orden.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderItem"
+        "401":
+          description:
+            Unauthorized.
+
+            # --- Endpoints de Perfil (Profile) ---
+  /profile/my-orders:
+    get:
+      tags:
+        - Profile
+      summary: Obtener mis órdenes
+      description: Retorna una lista de todas las órdenes de compra pertenecientes al usuario autenticado.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK. Lista de órdenes obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized.
+
+  # --- Endpoints de Productos ---
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Obtener todos los productos
+      description: Retorna una lista de todos los productos disponibles, con opción de paginación y filtrado por precio.
+      parameters:
+        - name: limit
+          in: query
+          description: Número de productos a retornar.
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: Número de productos a saltar para la paginación.
+          schema:
+            type: integer
+            default: 0
+        - name: price
+          in: query
+          description: Filtrar por un precio exacto.
+          schema:
+            type: number
+        - name: price_min
+          in: query
+          description: Filtrar por un precio mínimo.
+          schema:
+            type: number
+        - name: price_max
+          in: query
+          description: Filtrar por un precio máximo.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: OK. Operación exitosa.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+    post:
+      tags:
+        - Products
+      summary: Crear un nuevo producto
+      description: Crea un nuevo producto en la base de datos. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProduct"
+      responses:
+        "201":
+          description: Creado. El producto fue creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Bad Request. Los datos enviados no son válidos.
+        "401":
+          description: Unauthorized. No se proveyó un token válido.
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Obtener un producto por su ID
+      description: Retorna los detalles de un producto específico.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID numérico del producto a obtener.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Producto encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not Found. El producto no fue encontrado.
+
+    patch:
+      tags:
+        - Products
+      summary: Actualizar un producto parcialmente
+      description: Actualiza uno o más campos de un producto existente. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto a actualizar.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProduct"
+      responses:
+        "200":
+          description: OK. Producto actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized.
+        "404":
+          description: Not Found.
+
+    delete:
+      tags:
+        - Products
+      summary: Eliminar un producto
+      description: Elimina un producto de la base de datos. Requiere autenticación y rol de 'admin' o 'seller'.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del producto a eliminar.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Producto eliminado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 15
+        "401":
+          description: Unauthorized.
+        "404":
+          description: Not Found.
+
+  # --- Endpoints de Usuarios ---
+  /users/lista:
+    get:
+      tags:
+        - Users
+      summary: Obtener la lista de usuarios
+      description: Retorna una lista de todos los usuarios registrados en el sistema.
+      responses:
+        "200":
+          description: OK. Lista de usuarios obtenida.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Registrar un nuevo usuario
+      description: Crea un nuevo usuario en la base de datos. Generalmente con rol 'customer'.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUser"
+      responses:
+        "201":
+          description: Creado. El usuario fue creado exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Bad Request. Los datos enviados no son válidos o el email ya existe.
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Obtener un usuario por su ID
+      description: Retorna los detalles de un usuario específico, sin incluir el password.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario a obtener.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Usuario encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not Found. El usuario no fue encontrado.
+
+  /users/cambiarDatos/{id}:
+    patch:
+      tags:
+        - Users
+      summary: Actualizar datos de un usuario
+      description: Actualiza uno o más campos de un usuario existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario a actualizar.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUser"
+      responses:
+        "200":
+          description: OK. Usuario actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not Found. El usuario no fue encontrado.
+
+  /users/borrarCuenta/{id}:
+    delete:
+      tags:
+        - Users
+      summary: Eliminar una cuenta de usuario
+      description: Elimina un usuario de la base de datos.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del usuario a eliminar.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK. Usuario eliminado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario con ID 10 eliminado correctamente"
+        "404":
+          description: Not Found. El usuario no fue encontrado.
+
+components:
+  # Esquemas de datos
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Teclado Mecánico"
+        price:
+          type: number
+          format: float
+          example: 75.99
+        description:
+          type: string
+          example: "Teclado mecánico con switches rojos."
+        image:
+          type: string
+          format: uri
+          example: "http://example.com/image.jpg"
+        category:
+          $ref: "#/components/schemas/Category"
+
+    CreateProduct:
+      type: object
+      required:
+        - name
+        - price
+        - image
+        - categoryId
+      properties:
+        name:
+          type: string
+          example: "Mouse Gamer"
+        price:
+          type: number
+          example: 49.99
+        description:
+          type: string
+          example: "Mouse gamer con 16000 DPI."
+        image:
+          type: string
+          format: uri
+          example: "http://example.com/mouse.jpg"
+        categoryId:
+          type: integer
+          example: 1
+
+    UpdateProduct:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        image:
+          type: string
+          format: uri
+        categoryId:
+          type: integer
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        role:
+          type: string
+          example: "customer"
+
+    CreateUser:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: "Jane Doe"
+        email:
+          type: string
+          format: email
+          example: "jane.doe@example.com"
+        password:
+          type: string
+          format: password
+          example: "mypassword123"
+        role:
+          type: string
+          description: "Opcional. Por defecto será 'customer'."
+          example: "customer"
+
+    UpdateUser:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        role:
+          type: string
+
+    Login:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "admin@mail.com"
+        password:
+          type: string
+          format: password
+          example: "admin123"
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    ChangePassword:
+      type: object
+      required:
+        - token
+        - newPassword
+      properties:
+        token:
+          type: string
+          description: El token de recuperación recibido por email.
+        newPassword:
+          type: string
+          format: password
+          example: "newSecurePassword456"
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Diego"
+        lastName:
+          type: string
+          example: "Soto"
+        phone:
+          type: string
+          example: "+56912345678"
+        user:
+          $ref: "#/components/schemas/User"
+
+    CreateCustomer:
+      type: object
+      required:
+        - name
+        - lastName
+        - userId
+      properties:
+        name:
+          type: string
+          example: "Jane"
+        lastName:
+          type: string
+          example: "Doe"
+        phone:
+          type: string
+          example: "+56987654321"
+        userId:
+          type: integer
+          description: ID del usuario al que se asociará este perfil de cliente.
+          example: 2
+
+    UpdateCustomer:
+      type: object
+      properties:
+        name:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Ropa y Accesorios"
+        image:
+          type: string
+          format: uri
+          example: "http://example.com/category.jpg"
+
+    CreateCategory:
+      type: object
+      required:
+        - name
+        - image
+      properties:
+        name:
+          type: string
+          example: "Electrónica"
+        image:
+          type: string
+          format: uri
+          example: "http://example.com/electronics.jpg"
+
+    UpdateCategory:
+      type: object
+      properties:
+        name:
+          type: string
+        image:
+          type: string
+          format: uri
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        customer:
+          $ref: "#/components/schemas/Customer"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        amount:
+          type: integer
+          example: 2
+        price:
+          type: number
+          format: float
+          example: 75.99
+        product:
+          $ref: "#/components/schemas/Product"
+
+    AddItemToOrder:
+      type: object
+      required:
+        - orderId
+        - productId
+        - amount
+      properties:
+        orderId:
+          type: integer
+          example: 1
+        productId:
+          type: integer
+          example: 5
+        amount:
+          type: integer
+          example: 2
+
+  # Esquemas de seguridad
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -1,57 +1,80 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
-import { CUSTOMER_TABLE } from './../models/customer.model.js';
+import { USER_TABLE } from './user.model.js';
+import { ORDER_STATUS_TABLE } from './orderStatus.model.js';
+import { ADDRESS_TABLE } from './address.model.js';
 
-export const ORDER_TABLE = 'orders';
+const ORDER_TABLE = 'orders';
 
-export const OrderSchema = {
+const OrderSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
     type: DataTypes.INTEGER,
   },
-  customerId: {
-    field: 'customer_id',
+  totalPrice: {
+    field: 'total_price',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+  },
+  idUser: {
+    field: 'id_user',
     allowNull: false,
     type: DataTypes.INTEGER,
     references: {
-      model: CUSTOMER_TABLE,
+      model: USER_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
+    onDelete: 'RESTRICT',
+  },
+  idStatus: {
+    field: 'id_status',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: ORDER_STATUS_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'RESTRICT',
+  },
+  idAddress: {
+    field: 'id_address',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: ADDRESS_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'RESTRICT',
   },
   createdAt: {
+    field: 'created_at',
     allowNull: false,
     type: DataTypes.DATE,
-    field: 'created_at',
     defaultValue: Sequelize.NOW,
-  },
-  total: {
-    type: DataTypes.VIRTUAL,
-    get() {
-      if (this.items && this.items.length > 0) {
-        return this.items.reduce((total, item) => {
-          return total + item.price * item.OrderProduct.amount;
-        }, 0);
-      }
-      return 0;
-    },
   },
 };
 
-export class Order extends Model {
+class Order extends Model {
   static associate(models) {
-    this.belongsTo(models.Customer, {
-      as: 'customer',
-      foreignKey: 'customerId',
+    this.belongsTo(models.User, { as: 'user', foreignKey: 'idUser' });
+    this.belongsTo(models.OrderStatus, {
+      as: 'status',
+      foreignKey: 'idStatus',
     });
-    this.belongsToMany(models.Product, {
-      as: 'items',
-      through: models.OrderProduct,
-      foreignKey: 'orderId',
-      otherKey: 'productId',
+    this.belongsTo(models.Address, { as: 'address', foreignKey: 'idAddress' });
+
+    this.hasMany(models.OrderItem, { as: 'items', foreignKey: 'idOrder' });
+
+    this.hasMany(models.OrderTracking, {
+      as: 'tracking',
+      foreignKey: 'idOrder',
     });
+
+    this.hasMany(models.Payment, { as: 'payments', foreignKey: 'idOrder' });
   }
 
   static config(sequelize) {
@@ -59,8 +82,11 @@ export class Order extends Model {
       sequelize,
       tableName: ORDER_TABLE,
       modelName: 'Order',
-      schema: 'public',
-      timestamps: false,
+      timestamps: true,
+      updatedAt: false,
+      createdAt: 'created_at',
     };
   }
 }
+
+export { ORDER_TABLE, OrderSchema, Order };

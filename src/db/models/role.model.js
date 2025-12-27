@@ -1,8 +1,8 @@
 import { Model, DataTypes } from 'sequelize';
 
-const CATEGORY_TABLE = 'categories';
+const ROLE_TABLE = 'role';
 
-const CategorySchema = {
+const RoleSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -10,24 +10,27 @@ const CategorySchema = {
     type: DataTypes.INTEGER,
   },
   name: {
-    allowNull: true,
+    allowNull: false,
     type: DataTypes.STRING,
   },
 };
 
-class Category extends Model {
+class Role extends Model {
   static associate(models) {
-    this.hasMany(models.Product, { as: 'products', foreignKey: 'idCategory' });
+    this.hasMany(models.User, {
+      as: 'users',
+      foreignKey: 'idRole',
+    });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CATEGORY_TABLE,
-      modelName: 'Category',
+      tableName: ROLE_TABLE,
+      modelName: 'Role',
       timestamps: false,
     };
   }
 }
 
-export { CATEGORY_TABLE, CategorySchema, Category };
+export { ROLE_TABLE, RoleSchema, Role };

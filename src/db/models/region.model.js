@@ -1,8 +1,8 @@
 import { Model, DataTypes } from 'sequelize';
 
-const CATEGORY_TABLE = 'categories';
+const REGION_TABLE = 'region';
 
-const CategorySchema = {
+const RegionSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -10,24 +10,24 @@ const CategorySchema = {
     type: DataTypes.INTEGER,
   },
   name: {
-    allowNull: true,
+    allowNull: false,
     type: DataTypes.STRING,
   },
 };
 
-class Category extends Model {
+class Region extends Model {
   static associate(models) {
-    this.hasMany(models.Product, { as: 'products', foreignKey: 'idCategory' });
+    this.hasMany(models.City, { as: 'cities', foreignKey: 'idRegion' });
   }
 
   static config(sequelize) {
     return {
       sequelize,
-      tableName: CATEGORY_TABLE,
-      modelName: 'Category',
+      tableName: REGION_TABLE,
+      modelName: 'Region',
       timestamps: false,
     };
   }
 }
 
-export { CATEGORY_TABLE, CategorySchema, Category };
+export { REGION_TABLE, RegionSchema, Region };

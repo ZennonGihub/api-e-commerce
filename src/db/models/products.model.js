@@ -1,10 +1,10 @@
-import { Model, DataTypes, Sequelize } from 'sequelize';
-
-const CATEGORY_TABLE = 'categories';
+import { Model, DataTypes } from 'sequelize';
+import { CATEGORY_TABLE } from './category.model.js';
+import { PRODUCT_STATUS_TABLE } from './productStatus.model.js';
 
 const PRODUCT_TABLE = 'products';
 
-export const ProductSchema = {
+const ProductSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
@@ -12,29 +12,24 @@ export const ProductSchema = {
     type: DataTypes.INTEGER,
   },
   name: {
+    allowNull: false,
     type: DataTypes.STRING,
-    allowNull: false,
-  },
-  image: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: false,
   },
   price: {
+    allowNull: false,
     type: DataTypes.INTEGER,
-    allowNull: false,
   },
-  createdAt: {
+  stock: {
     allowNull: false,
-    type: DataTypes.DATE,
-    field: 'created_at',
-    defaultValue: Sequelize.NOW,
+    type: DataTypes.INTEGER,
   },
-  categoryId: {
-    field: 'category_id',
+  imageUrl: {
+    field: 'image_url',
+    allowNull: true,
+    type: DataTypes.STRING,
+  },
+  idCategory: {
+    field: 'id_category',
     allowNull: false,
     type: DataTypes.INTEGER,
     references: {
@@ -44,14 +39,32 @@ export const ProductSchema = {
     onUpdate: 'CASCADE',
     onDelete: 'RESTRICT',
   },
+  idStatus: {
+    field: 'id_status',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: PRODUCT_STATUS_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'RESTRICT',
+  },
 };
 
-export class Product extends Model {
+class Product extends Model {
   static associate(models) {
     this.belongsTo(models.Category, {
-      as: 'Category',
-      foreignKey: 'categoryId',
+      as: 'category',
+      foreignKey: 'idCategory',
     });
+    this.belongsTo(models.ProductStatus, {
+      as: 'status',
+      foreignKey: 'idStatus',
+    });
+
+    this.hasMany(models.CartItem, { as: 'inCarts', foreignKey: 'idProduct' });
+    this.hasMany(models.OrderItem, { as: 'inOrders', foreignKey: 'idProduct' });
   }
 
   static config(sequelize) {
@@ -59,8 +72,9 @@ export class Product extends Model {
       sequelize,
       tableName: PRODUCT_TABLE,
       modelName: 'Product',
-      schema: 'public',
       timestamps: false,
     };
   }
 }
+
+export { PRODUCT_TABLE, ProductSchema, Product };

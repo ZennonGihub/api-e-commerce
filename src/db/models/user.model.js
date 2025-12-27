@@ -1,36 +1,30 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
+import { ROLE_TABLE } from './role.model.js';
 
-export const USER_TABLE = 'users';
+const USER_TABLE = 'users';
 
-export const UserSchema = {
+const UserSchema = {
   id: {
     allowNull: false,
     autoIncrement: true,
     primaryKey: true,
     type: DataTypes.INTEGER,
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
+  username: {
     allowNull: false,
     type: DataTypes.STRING,
     unique: true,
   },
-  password: {
-    allowNull: false,
-    type: DataTypes.STRING,
-  },
-  recoveryToken: {
-    field: 'recovery_token',
+  idRole: {
+    field: 'id_role', // Nombre real en la DB
     allowNull: true,
-    type: DataTypes.STRING,
-  },
-  role: {
-    allowNull: false,
-    type: DataTypes.STRING,
-    defaultValue: 'customer',
+    type: DataTypes.INTEGER,
+    references: {
+      model: ROLE_TABLE,
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
   },
   createdAt: {
     allowNull: false,
@@ -38,21 +32,16 @@ export const UserSchema = {
     field: 'created_at',
     defaultValue: Sequelize.NOW,
   },
-  updatedAt: {
-    allowNull: false,
-    type: DataTypes.DATE,
-    field: 'updated_at',
-    defaultValue: Sequelize.NOW,
-  },
 };
 
-export class User extends Model {
+class User extends Model {
   static associate(models) {
-    this.hasOne(models.Customer, {
-      as: 'customer',
-      foreignKey: 'userId',
-      onDelete: 'CASCADE',
-    });
+    this.belongsTo(models.Role, { as: 'role', foreignKey: 'idRole' });
+
+    this.hasOne(models.Customer, { as: 'customer', foreignKey: 'idUser' });
+    this.hasOne(models.Auth, { as: 'auth', foreignKey: 'idUser' });
+    this.hasOne(models.Cart, { as: 'cart', foreignKey: 'idUser' });
+    this.hasMany(models.Order, { as: 'orders', foreignKey: 'idUser' });
   }
 
   static config(sequelize) {
@@ -60,8 +49,10 @@ export class User extends Model {
       sequelize,
       tableName: USER_TABLE,
       modelName: 'User',
-      timestamps: false,
-      schema: 'public',
+      timestamps: true,
+      updatedAt: false,
     };
   }
 }
+
+export { USER_TABLE, UserSchema, User };

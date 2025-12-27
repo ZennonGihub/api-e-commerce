@@ -36,6 +36,8 @@ const options = {
 app.use(cors(options));
 import './../src/util/index.js';
 
+app.listen(3000, console.log('Api corriendo en el puerto 3000'));
+
 app.get('/', (req, res) => {
   res.send('Api funcionando de manera exitosa');
 });

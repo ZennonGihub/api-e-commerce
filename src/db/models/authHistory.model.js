@@ -46,7 +46,6 @@ const AuthHistorySchema = {
 
 class AuthHistory extends Model {
   static associate(models) {
-    // Pertenece a una Auth original
     this.belongsTo(models.Auth, {
       as: 'auth',
       foreignKey: 'idAuth',

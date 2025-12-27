@@ -16,7 +16,7 @@ const UserSchema = {
     unique: true,
   },
   idRole: {
-    field: 'id_role', // Nombre real en la DB
+    field: 'id_role',
     allowNull: true,
     type: DataTypes.INTEGER,
     references: {

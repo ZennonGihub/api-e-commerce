@@ -41,7 +41,6 @@ const CartItemSchema = {
 
 class CartItem extends Model {
   static associate(models) {
-    // Pertenece a un Carrito
     this.belongsTo(models.Cart, {
       as: 'cart',
       foreignKey: 'idCart',

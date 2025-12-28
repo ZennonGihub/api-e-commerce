@@ -1,5 +1,5 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
-import { USER_TABLE } from './user.model.js';
+import { CUSTOMER_TABLE } from './customers.model.js';
 import { ORDER_STATUS_TABLE } from './orderStatus.model.js';
 import { ADDRESS_TABLE } from './address.model.js';
 
@@ -17,12 +17,12 @@ const OrderSchema = {
     allowNull: false,
     type: DataTypes.INTEGER,
   },
-  idUser: {
-    field: 'id_user',
+  idCustomer: {
+    field: 'id_customer',
     allowNull: false,
     type: DataTypes.INTEGER,
     references: {
-      model: USER_TABLE,
+      model: CUSTOMER_TABLE,
       key: 'id',
     },
     onUpdate: 'CASCADE',
@@ -60,7 +60,10 @@ const OrderSchema = {
 
 class Order extends Model {
   static associate(models) {
-    this.belongsTo(models.User, { as: 'user', foreignKey: 'idUser' });
+    this.belongsTo(models.Customer, {
+      as: 'customer',
+      foreignKey: 'idCustomer',
+    });
     this.belongsTo(models.OrderStatus, {
       as: 'status',
       foreignKey: 'idStatus',

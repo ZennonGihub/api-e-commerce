@@ -18,7 +18,7 @@ import { OrderTracking, OrderTrackingSchema } from './orderTracking.model.js';
 import { PaymentMethod, PaymentMethodSchema } from './paymentMethod.model.js';
 import { Payment, PaymentSchema } from './payment.model.js';
 
-function setupModels(sequelize) {
+export function setupModels(sequelize) {
   Role.init(RoleSchema, Role.config(sequelize));
   User.init(UserSchema, User.config(sequelize));
   Auth.init(AuthSchema, Auth.config(sequelize));
@@ -58,5 +58,3 @@ function setupModels(sequelize) {
   PaymentMethod.associate(sequelize.models);
   Payment.associate(sequelize.models);
 }
-
-export default setupModels;

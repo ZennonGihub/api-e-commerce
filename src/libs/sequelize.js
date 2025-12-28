@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { config } from '../config/config.js';
-import setupModels from '../db/models/index.model.js';
+import { setupModels } from '../db/models/index.model.js';
 
 import 'pg';
 import 'pg-hstore';

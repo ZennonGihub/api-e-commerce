@@ -1,20 +1,37 @@
 import boom from '@hapi/boom';
 import { models } from '../libs/sequelize.js';
+import { CartUsers } from './carroDeCompras.service.js';
+
+const service = new CartUsers();
 
 export class OrderService {
   constructor() {}
 
-  async create(idUser, data) {
-    const customer = await models.Customer.findByPk(data.idCustomer);
-    if (!customer) {
+  async create(idUser, idCart) {
+    const user = await models.User.findByPk(idUser, {
+      include: [
+        {
+          association: 'customer',
+          attributes: ['id'],
+          include: [
+            {
+              association: 'addresses',
+              attributes: ['id'],
+            },
+          ],
+        },
+      ],
+    });
+    if (!user) {
       throw boom.notFound('Perfil no encontrado');
     }
+    const itemsCart = await service.getOneCart(idCart);
+
     const newOrder = await models.Order.create({
-      id_user: idUser,
-      id_customer: data.idCustomer,
-      idAddress: data.idAddress,
-      idStatus: 1,
-      totalPrice: 0,
+      id_customer: user.customers.id,
+      id_status: 1,
+      id_address: user.customer.addresses.id,
+      totalPrice: totalPrice,
     });
 
     return newOrder;

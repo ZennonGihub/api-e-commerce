@@ -6,6 +6,7 @@ export class CartUsers {
 
   async getUserAllCarts() {
     const cart = await models.Cart.findAll();
+    if (!cart) throw boom.notFound('No se encontraron carros');
     return cart;
   }
 
@@ -22,15 +23,21 @@ export class CartUsers {
     return cart;
   }
 
-  async getFullItemsCart() {
-    const cartItems = await models.CartItem.findAll();
-    return cartItems;
-  }
-
   async getOneCart(id) {
     if (!id) throw boom.notFound('Carro de compras no encontrado');
     const cart = await models.Cart.findByPk(id, {
-      include: ['items'],
+      include: [
+        {
+          association: 'items',
+          attributes: ['id_product', 'quantity'],
+          include: [
+            {
+              association: 'product',
+              attributes: ['id', 'price', 'stock', 'name'],
+            },
+          ],
+        },
+      ],
     });
     if (!cart) throw boom.notFound('Carro de compras no encontrado');
     return cart;

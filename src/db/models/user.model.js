@@ -41,7 +41,6 @@ class User extends Model {
     this.hasOne(models.Customer, { as: 'customer', foreignKey: 'idUser' });
     this.hasOne(models.Auth, { as: 'auth', foreignKey: 'idUser' });
     this.hasOne(models.Cart, { as: 'cart', foreignKey: 'idUser' });
-    this.hasMany(models.Order, { as: 'orders', foreignKey: 'idUser' });
   }
 
   static config(sequelize) {

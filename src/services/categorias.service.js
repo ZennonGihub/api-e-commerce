@@ -11,8 +11,9 @@ export class CategoryService {
     return newCategory;
   }
 
-  async find() {
+  async findAll() {
     const categories = await models.Category.findAll();
+    if (!categories) throw boom.notFound('No se encontraron categorias');
     return categories;
   }
 

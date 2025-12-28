@@ -52,7 +52,7 @@ export class CustomerService {
     }
   }
 
-  async find() {
+  async findAll() {
     const customers = await models.Customer.findAll({
       include: [
         {

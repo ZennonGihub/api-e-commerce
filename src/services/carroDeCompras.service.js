@@ -4,7 +4,7 @@ import { models } from '../libs/sequelize.js';
 export class CartUsers {
   constructor() {}
 
-  async getUserCart() {
+  async getUserAllCarts() {
     const cart = await models.Cart.findAll();
     return cart;
   }
@@ -27,7 +27,7 @@ export class CartUsers {
     return cartItems;
   }
 
-  async findOne(id) {
+  async getOneCart(id) {
     if (!id) throw boom.notFound('Carro de compras no encontrado');
     const cart = await models.Cart.findByPk(id, {
       include: ['items'],
@@ -36,7 +36,7 @@ export class CartUsers {
     return cart;
   }
 
-  async getItemCart(id) {
+  async getOneItemCart(id) {
     if (!id) throw boom.notFound('Item del carro no encontrado');
     const cartItem = await models.CartItem.findByPk(id);
     if (!cartItem) throw boom.notFound('Item del carro no encontrado');
@@ -77,7 +77,7 @@ export class CartUsers {
   }
 
   async updateItem(cartItemId, quantity) {
-    const cartItem = await this.getItemCart(cartItemId);
+    const cartItem = await this.getOneItemCart(cartItemId);
     if (cartItem) {
       cartItem.quantity = quantity;
       await cartItem.save();
@@ -85,8 +85,14 @@ export class CartUsers {
     }
   }
 
+  async removeCart(id) {
+    const cartItem = await this.getOneCart(id);
+    await cartItem.destroy();
+    return { message: 'Carro eliminado' };
+  }
+
   async removeItem(cartItemId) {
-    const cartItem = await this.getItemCart(cartItemId);
+    const cartItem = await this.getOneItemCart(cartItemId);
     await cartItem.destroy();
     return { message: 'Producto eliminado del carrito' };
   }

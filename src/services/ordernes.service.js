@@ -4,13 +4,14 @@ import { models } from '../libs/sequelize.js';
 export class OrderService {
   constructor() {}
 
-  async create(data) {
-    const user = await models.User.findByPk(data.idUser);
-    if (!user) {
-      throw boom.notFound('Usuario no encontrado');
+  async create(idUser, data) {
+    const customer = await models.Customer.findByPk(data.idCustomer);
+    if (!customer) {
+      throw boom.notFound('Perfil no encontrado');
     }
     const newOrder = await models.Order.create({
-      idUser: data.idUser,
+      id_user: idUser,
+      id_customer: data.idCustomer,
       idAddress: data.idAddress,
       idStatus: 1,
       totalPrice: 0,
@@ -48,7 +49,7 @@ export class OrderService {
     return order;
   }
 
-  async findByUser(userId) {
+  async findUserAllOrders(userId) {
     const orders = await models.Order.findAll({
       where: {
         idUser: userId,

@@ -1,12 +1,10 @@
-import express from 'express';
 import { UserServices } from '../services/usuarios.service.js';
 
-const router = express.Router();
 const service = new UserServices();
 
 export const getListUser = async (req, res, next) => {
   try {
-    const users = await service.find();
+    const users = await service.findAll();
     res.status(200).json(users);
   } catch (error) {
     next(error);
@@ -15,8 +13,7 @@ export const getListUser = async (req, res, next) => {
 
 export const getOneUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const user = await service.findOne(id);
+    const user = await service.findOne(req.params.id);
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -35,9 +32,8 @@ export const createdUser = async (req, res, next) => {
 
 export const removedUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    await service.delete(id);
-    res.json({ message: `Usuario con ID ${id} eliminado correctamente` });
+    const result = await service.delete(req.params.id);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -45,9 +41,7 @@ export const removedUser = async (req, res, next) => {
 
 export const updatedUser = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const changes = req.body;
-    const updateuser = await service.update(id, changes);
+    const updateuser = await service.update(req.params.id, req.params.changes);
     res.status(201).json(updateuser);
   } catch (error) {
     next(error);

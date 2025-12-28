@@ -3,7 +3,7 @@ import { AuthService } from '../services/auth.service.js';
 
 const service = new AuthService();
 
-export const listProduct = async (req, res, next) => {
+export const getToken = async (req, res, next) => {
   try {
     const user = req.user;
     const { accessToken, refreshToken } = await service.generateToken(user);

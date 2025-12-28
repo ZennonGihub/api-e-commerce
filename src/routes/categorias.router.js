@@ -34,7 +34,7 @@ router.post(
 );
 
 router.patch(
-  '/',
+  '/:id',
   passport.authenticate('jwt', { session: false }),
   checkRoles('admin', 'seller'),
   validatorHandler(updateCategorySchema, 'body'),

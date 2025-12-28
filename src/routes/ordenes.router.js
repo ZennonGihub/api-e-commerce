@@ -1,17 +1,17 @@
 import express from 'express';
 import { validatorHandler } from '../middlewares/validator.handler.js';
-import { checkRoles } from './../middlewares/auth.handler.js';
+import { checkRoles } from '../middlewares/auth.handler.js';
 import {
   getOrderSchema,
   createOrderSchema,
   addItemSchema,
-} from './../schemas/order.schema.js';
+} from '../schemas/order.schema.js';
 import passport from 'passport';
 import {
   getOneOrder,
   createdOrder,
   addItemOrder,
-} from '../controller/order.controller.js';
+} from '../controller/ordenes.controller.js';
 
 const router = express.Router();
 

@@ -1,12 +1,11 @@
-import express from 'express';
 import { CustomerService } from './../services/customers.service.js';
 
-const router = express.Router();
 const service = new CustomerService();
 
 export const getList = async (req, res, next) => {
   try {
-    res.json.status(201)(await service.find());
+    const result = await service.findAll();
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -14,8 +13,8 @@ export const getList = async (req, res, next) => {
 
 export const createdCustomer = async (req, res, next) => {
   try {
-    const body = req.body;
-    res.status(201).json(await service.create(body));
+    const result = await service.create(req.body);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -23,13 +22,8 @@ export const createdCustomer = async (req, res, next) => {
 
 export const updatedCustomer = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const user = req.user;
-    const body = req.body;
-    if (user.role !== 'admin' && user.sub.toString() !== id) {
-      throw boom.forbidden(`No tienes permiso de realizar esta accion.`);
-    }
-    res.status(201).json(await service.update(id, body));
+    const result = await service.update(req.params.id, req.user.id, req.body);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
@@ -37,12 +31,8 @@ export const updatedCustomer = async (req, res, next) => {
 
 export const removedCustomer = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const user = req.user;
-    if (user.role !== 'admin' && user.sub.toString() !== id) {
-      throw boom.forbidden(`No tienes permiso de realizar esta accion.`);
-    }
-    res.status(201).json(await service.delete(id));
+    const result = await service.delete(req.params.id);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }

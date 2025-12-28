@@ -13,7 +13,7 @@ export class UserService {
     return newUser;
   }
 
-  async find() {
+  async findAll() {
     const users = await models.User.findAll({
       include: [
         'customer',
@@ -55,6 +55,6 @@ export class UserService {
   async delete(id) {
     const user = await this.findOne(id);
     await user.destroy();
-    return { id };
+    return { message: `Usuario con ID ${id} eliminado correctamente` };
   }
 }

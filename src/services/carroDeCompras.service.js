@@ -5,44 +5,88 @@ export class CartUsers {
   constructor() {}
 
   async getUserCart() {
-    const cart = await models.cart.findAll();
+    const cart = await models.Cart.findAll();
+    return cart;
+  }
+
+  async findCartByUser(userId) {
+    const cart = await models.Cart.findOne({
+      where: { idUser: userId },
+      include: [
+        {
+          association: 'items',
+          include: ['product'],
+        },
+      ],
+    });
+    return cart;
+  }
+
+  async getFullItemsCart() {
+    const cartItems = await models.CartItem.findAll();
+    return cartItems;
+  }
+
+  async findOne(id) {
+    if (!id) throw boom.notFound('Carro de compras no encontrado');
+    const cart = await models.Cart.findByPk(id, {
+      include: ['items'],
+    });
+    if (!cart) throw boom.notFound('Carro de compras no encontrado');
     return cart;
   }
 
   async getItemCart(id) {
-    if (id) {
-      throw boom.notFound('Item del carro no encontrado');
-    }
-    const cartItem = await models.Cart.findByPk(id);
-    if (!cartItem) {
-      throw boom.notFound('Item del carro no encontrado');
-    }
+    if (!id) throw boom.notFound('Item del carro no encontrado');
+    const cartItem = await models.CartItem.findByPk(id);
+    if (!cartItem) throw boom.notFound('Item del carro no encontrado');
     return cartItem;
   }
 
-  async addItemCart(data) {
-    const { itemId } = data;
-    const cartItem = this.getItemCart(itemId);
+  async addItemCart(userId, data) {
+    const { productId, quantity } = data;
+
+    let [cart] = await models.Cart.findOrCreate({
+      where: { idUser: userId },
+      defaults: { idUser: userId }, // Si no existe, se utiliza eso para crear uno nuevo
+    });
+
+    // Buscamos si el producto ya esta en el carro
+    let cartItem = await models.CartItem.findOne({
+      where: {
+        idCart: cart.id,
+        idProduct: productId,
+      },
+    });
+
+    // Se decide si se actualiza o se se crea el item
     if (cartItem) {
-      cartItem.amount += amount;
+      // Si el producto ya esta, solo sumamos la cantidad
+      cartItem.quantity += quantity;
       await cartItem.save();
       return cartItem;
+    } else {
+      // Si el producto no esta en el carro, se crea
+      const newCartItem = await models.CartItem.create({
+        idCart: cart.id,
+        idProduct: productId,
+        quantity: quantity,
+      });
+      return newCartItem;
     }
-    const newItem = await models.Cart.create({ userId, productId, cantidad });
-    return newItem;
   }
 
-  async uptadeItem(cartItemId, amount) {
-    const cartItem = this.getItemCart(cartItemId);
+  async updateItem(cartItemId, quantity) {
+    const cartItem = await this.getItemCart(cartItemId);
     if (cartItem) {
-      cartItem.cantidad = amount;
+      cartItem.quantity = quantity;
       await cartItem.save();
       return cartItem;
     }
   }
 
   async removeItem(cartItemId) {
-    const cartItem = this.getItemCart(cartItemId);
+    const cartItem = await this.getItemCart(cartItemId);
     await cartItem.destroy();
     return { message: 'Producto eliminado del carrito' };
   }

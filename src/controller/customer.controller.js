@@ -6,7 +6,7 @@ const service = new CustomerService();
 
 export const getList = async (req, res, next) => {
   try {
-    res.json(await service.find());
+    res.json.status(201)(await service.find());
   } catch (error) {
     next(error);
   }

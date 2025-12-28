@@ -11,16 +11,18 @@ export class ProductsService {
   }
 
   async find(query) {
-    const { limit, offset, price, priceMin, priceMax } = query;
+    const { limit, offset, price, priceMin, priceMax, categoryId } = query;
 
     const options = {
       include: ['category'],
-      where: { id_categoria: id_categoria },
+      where: {},
     };
+    // Paginacion
     if (limit && offset) {
       options.limit = limit;
       options.offset = offset;
     }
+    // Filtros de precios
     if (price) {
       options.where.price = price;
     }
@@ -32,30 +34,31 @@ export class ProductsService {
       };
     }
 
+    // Filtros de categorias
+    if (categoryId) {
+      options.where.idCategory = categoryId;
+    }
     const products = await models.Product.findAll(options);
     return products;
   }
 
   async findOne(id) {
-    if (!id) {
-      throw boom.notFound('Producto no encontrado');
-    }
-    const product = await models.Product.findByPk(id);
-    return product;
+    if (!id) throw boom.notFound('Producto no encontrado');
+    const product = await models.Product.findByPk(id, {
+      include: ['category'],
+    });
+    if (!product) throw boom.notFound('Producto no encontrado');
   }
 
   async update(id, changes) {
-    const product = this.Product.findOne(id);
-    const updatedProduct = Object.assign(product, changes);
+    const product = await this.findOne(id);
+    const updatedProduct = await product.update(changes);
     return updatedProduct;
   }
 
   async delete(id) {
-    const index = this.Product.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw boom.notFound('product not found');
-    }
-    this.products.splice(index, 1);
+    const product = await this.findOne(id);
+    await product.destroy();
     return { id };
   }
 }

@@ -1,28 +1,39 @@
-import { UserServices } from './usuarios.service.js';
 import boom from '@hapi/boom';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { config } from './../config/config.js';
 import nodemailer from 'nodemailer';
+import { config } from './../config/config.js';
+import { models } from '../libs/sequelize.js';
+import { UserService } from './usuarios.service.js';
 
-const service = new UserServices();
+const UserService = new UserService();
 
 export class AuthService {
-  async getUser(email, password) {
-    const user = await service.findByEmail(email);
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw boom.unauthorized('Contraña incorrecta');
-    }
-    delete user.dataValues.password;
-    return user;
+  async login(email, password) {
+    const auth = await models.Auth.findOne({
+      where: { email },
+      include: [
+        {
+          association: 'user',
+          include: ['role'],
+        },
+      ],
+    });
+
+    if (!auth) throw boom.unauthorized('Credenciales inválidas');
+
+    const isMatch = await bcrypt.compare(password, auth.password);
+    if (!isMatch) throw boom.unauthorized('Credenciales inválidas');
+
+    return auth.user;
   }
 
-  async generateToken(user) {
+  signToken(user) {
     const payload = {
       sub: user.id,
-      role: user.role,
+      role: user.role.name,
     };
+
     const accessToken = jwt.sign(payload, config.jwtSecret, {
       expiresIn: '15m',
     });
@@ -30,22 +41,26 @@ export class AuthService {
     const refreshToken = jwt.sign(payload, config.jwtRefreshToken, {
       expiresIn: '1d',
     });
-    return { accessToken, refreshToken };
+
+    return { user, accessToken, refreshToken };
   }
 
   async sendRecoveryPassword(email) {
-    const user = await service.findByEmail(email);
-    const payload = { sub };
-    const recoveryTokenPassword = jwt.sign(payload, config.jwtRecovery, {
-      expiresIn: '15m',
-    });
-    const link = `http://frontend.com/recovery?token=${recoveryTokenPassword}`;
-    await service.update(user.id, { recoveryToken: recoveryTokenPassword });
+    const auth = await models.Auth.findOne({ where: { email } });
+    if (!auth) throw boom.unauthorized('Correo no encontrado');
+
+    const payload = { sub: auth.idUser };
+    const token = jwt.sign(payload, config.jwtRecovery, { expiresIn: '15m' });
+
+    const link = `http://tu-frontend.com/recovery?token=${token}`;
+
+    await auth.update({ recoveryToken: token });
+
     const mail = {
       from: config.emailUser,
-      to: `${user.email}`,
-      subject: 'Email para recuperar contraseña',
-      text: `<b>Ingresa a este link para recuperar tu contraseña => ${link}</b>`,
+      to: email,
+      subject: 'Recuperar contraseña - E-commerce',
+      html: `<b>Ingresa a este link para recuperar tu contraseña: <a href="${link}">${link}</a></b>`,
     };
     const rta = await this.sendMail(mail);
     return rta;
@@ -54,20 +69,27 @@ export class AuthService {
   async changePassword(token, newPassword) {
     try {
       const payload = jwt.verify(token, config.jwtRecovery);
-      const user = await service.findOne(payload.sub);
-      if (user.recoveryToken !== token) {
-        throw boom.unauthorized(`No estas autorizado`);
+      const auth = await models.Auth.findOne({
+        where: { idUser: payload.sub },
+      });
+      if (!auth || auth.recoveryToken !== token) {
+        throw boom.unauthorized('Token inválido o expirado');
       }
+
       const hash = await bcrypt.hash(newPassword, 10);
-      await service.update(user.id, { recoveryToken: null, password: hash });
-      return { message: 'La contraseña fue cambiada con exito' };
+      await auth.update({
+        password: hash,
+        recoveryToken: null,
+      });
+
+      return { message: 'Contraseña cambiada exitosamente' };
     } catch (error) {
-      throw boom.unauthorized(`No estas autorizado`);
+      throw boom.unauthorized('No estás autorizado');
     }
   }
 
   async sendMail(infoMail) {
-    let transporter = nodemailer.createTransport({
+    const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       secure: true,
       port: 465,
@@ -76,7 +98,8 @@ export class AuthService {
         pass: config.emailPassword,
       },
     });
+
     await transporter.sendMail(infoMail);
-    return { message: 'Mail sent' };
+    return { message: 'Correo enviado' };
   }
 }

@@ -1,49 +1,47 @@
 import boom from '@hapi/boom';
 import { models } from '../libs/sequelize.js';
-import bcrypt from 'bcrypt';
 
-export class UserServices {
+export class UserService {
   constructor() {}
 
+  // Metodo para crear usuarios directos.
   async create(data) {
-    const hash = await bcrypt.hash(data.password, 10);
-    const newUser = await models.User.create(
-      {
-        ...data,
-        password: hash,
-      },
-      {
-        include: ['customer'],
-      },
-    );
-    delete newUser.dataValues.password;
+    const newUser = await models.User.create({
+      username: data.username,
+      idRole: data.idRole || 2,
+    });
     return newUser;
   }
 
   async find() {
-    const rta = await models.User.findAll({
-      include: ['customer'],
+    const users = await models.User.findAll({
+      include: [
+        'customer',
+        {
+          association: 'auth',
+          attributes: ['email', 'phone'],
+        },
+      ],
     });
-    return rta;
-  }
-
-  async findByEmail(email) {
-    const rta = await models.User.findOne({
-      where: { email },
-    });
-    if (!rta) {
-      throw boom.notFound('Usuario no encontrado');
-    }
-    return rta;
+    return users;
   }
 
   async findOne(id) {
-    if (!id) {
-      throw boom.badRequest('El ID proporcionado no es válido');
-    }
-    const user = await models.User.findByPk(id);
+    if (!id) throw boom.badRequest('El ID es requerido');
+
+    const user = await models.User.findByPk(id, {
+      include: [
+        'customer',
+        'role',
+        {
+          association: 'auth',
+          attributes: ['email'],
+        },
+      ],
+    });
+
     if (!user) {
-      throw boom.notFound('user not found');
+      throw boom.notFound('Usuario no encontrado');
     }
     return user;
   }

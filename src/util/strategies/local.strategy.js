@@ -1,5 +1,6 @@
 import { Strategy } from 'passport-local';
-import { AuthService } from './../../services/auth.service.js';
+import { AuthService } from '../../../services/auth.service.js';
+
 const service = new AuthService();
 
 export const localStrategy = new Strategy(
@@ -9,7 +10,8 @@ export const localStrategy = new Strategy(
   },
   async (email, password, done) => {
     try {
-      const user = await service.getUser(email, password);
+      const user = await service.login(email, password);
+
       done(null, user);
     } catch (error) {
       done(error, false);

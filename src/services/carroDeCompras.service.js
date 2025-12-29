@@ -10,19 +10,6 @@ export class CartUsers {
     return cart;
   }
 
-  async findCartByUser(userId) {
-    const cart = await models.Cart.findOne({
-      where: { idUser: userId },
-      include: [
-        {
-          association: 'items',
-          include: ['product'],
-        },
-      ],
-    });
-    return cart;
-  }
-
   async getOneCart(id) {
     if (!id) throw boom.notFound('Carro de compras no encontrado');
     const cart = await models.Cart.findByPk(id, {

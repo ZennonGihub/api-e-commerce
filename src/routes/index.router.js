@@ -2,7 +2,8 @@ import express from 'express';
 
 import { checkApiKey } from '../middlewares/auth.handler.js';
 import articulosRouter from './articulos.router.js';
-import carritoDeCompras from './carroDeCompras.router.js';
+import carritoDeComprasRouter from './carroDeCompras.router.js';
+import paymentRouter from './payment.router.js';
 import usuarioRouter from './usuarios.router.js';
 import customeRouter from './customer.router.js';
 import categoriesRouter from './categorias.router.js';
@@ -17,7 +18,8 @@ export function routerApi(app) {
   app.use('/api/v1', router);
 
   router.use('/products', articulosRouter);
-  router.use('/carro', carritoDeCompras);
+  router.use('/carro', carritoDeComprasRouter);
+  router.use('/payment', paymentRouter);
   router.use('/users', usuarioRouter);
   router.use('/customer', customeRouter);
   router.use('/categories', categoriesRouter);

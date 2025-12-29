@@ -6,7 +6,7 @@ import carritoDeCompras from './carroDeCompras.router.js';
 import usuarioRouter from './usuarios.router.js';
 import customeRouter from './customer.router.js';
 import categoriesRouter from './categorias.router.js';
-import orderRouter from './order.router.js';
+import orderRouter from './ordenes.router.js';
 import authRouter from './auth.router.js';
 import profileRouter from './profile.router.js';
 

@@ -1,26 +1,27 @@
-import { UserServices } from '../services/usuarios.service.js';
+import { UserService } from '../services/usuarios.service.js';
 
-const service = new UserServices();
+const service = new UserService();
 
-export const getListUser = async (req, res, next) => {
+export const getUsers = async (req, res, next) => {
   try {
     const users = await service.findAll();
-    res.status(200).json(users);
+    res.json(users);
   } catch (error) {
     next(error);
   }
 };
 
-export const getOneUser = async (req, res, next) => {
+export const getUser = async (req, res, next) => {
   try {
-    const user = await service.findOne(req.params.id);
-    res.status(200).json(user);
+    const { id } = req.params;
+    const user = await service.findOne(id);
+    res.json(user);
   } catch (error) {
     next(error);
   }
 };
 
-export const createdUser = async (req, res, next) => {
+export const createUser = async (req, res, next) => {
   try {
     const body = req.body;
     const newUser = await service.create(body);
@@ -30,19 +31,22 @@ export const createdUser = async (req, res, next) => {
   }
 };
 
-export const removedUser = async (req, res, next) => {
+export const updateUser = async (req, res, next) => {
   try {
-    const result = await service.delete(req.params.id);
-    res.status(201).json(result);
+    const { id } = req.params;
+    const body = req.body;
+    const user = await service.update(id, body);
+    res.json(user);
   } catch (error) {
     next(error);
   }
 };
 
-export const updatedUser = async (req, res, next) => {
+export const deleteUser = async (req, res, next) => {
   try {
-    const updateuser = await service.update(req.params.id, req.params.changes);
-    res.status(201).json(updateuser);
+    const { id } = req.params;
+    const result = await service.delete(id);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }

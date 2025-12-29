@@ -1,5 +1,5 @@
 import { Strategy } from 'passport-local';
-import { AuthService } from '../../../services/auth.service.js';
+import { AuthService } from '../../services/auth.service.js';
 
 const service = new AuthService();
 

@@ -1,19 +1,23 @@
-import boom from '@hapi/boom';
+import { config } from '../config/config.js';
 import { AuthService } from '../services/auth.service.js';
 
 const service = new AuthService();
 
-export const getToken = async (req, res, next) => {
+export const login = async (req, res, next) => {
   try {
     const user = req.user;
-    const { accessToken, refreshToken } = await service.generateToken(user);
+    const { accessToken, refreshToken } = service.signToken(user);
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
-      secure: true,
+      secure: config.isProd,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    res.json({ accessToken, refreshToken });
+
+    res.json({
+      user,
+      accessToken,
+    });
   } catch (error) {
     next(error);
   }
@@ -21,34 +25,22 @@ export const getToken = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
-    const refreshToken = req.cookies.jwt;
-    if (!refreshToken) {
-      throw boom.forbidden(`No tienes un token de refresh`);
-    }
-    const payload = jwt.verify(refreshToken, config.jwtRefreshToken);
-    const user = await service.findOne(payload.sub);
-    if (!user) {
-      throw boom.forbidden(`Usuario invalido`);
-    }
-    const newPayload = {
-      sub: user.id,
-      role: user.role,
-    };
-    const accestoken = jwt.sign(newPayload, config.jwtSecret, {
-      expiresIn: '15m',
-    });
-    return res.json(accestoken);
+    const token = req.cookies.jwt;
+    const rta = await service.refreshToken(token);
+    res.json(rta);
   } catch (error) {
     next(error);
   }
 };
 
-export const recoveryToken = async (req, res, next) => {
+export const recovery = async (req, res, next) => {
   try {
     const { email } = req.body;
     const rta = await service.sendRecoveryPassword(email);
     res.json(rta);
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const changePassword = async (req, res, next) => {

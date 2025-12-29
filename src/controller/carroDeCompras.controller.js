@@ -1,99 +1,58 @@
-import { CartUsers } from '../services/carroDeCompras.service.js';
-import boom from '@hapi/boom';
+import { CartService } from '../services/carroDeCompras.service.js';
 
-const service = new CartUsers();
+const service = new CartService();
 
-export const getUserAllCarts = async (req, res, next) => {
+export const getMyCart = async (req, res, next) => {
   try {
-    const cart = await service.getUserAllCarts();
-    res.status(200).json(cart);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getOneCartByUser = async (req, res, next) => {
-  try {
-    const cart = await service.findCartByUser(user.id);
-    res.status(200).json(cart);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getOneCart = async (req, res, next) => {
-  try {
-    const cart = await service.findOneCart(req.params.id);
-    res.status(200).json(cart);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const updatedCart = async (req, res, next) => {
-  try {
-    const updatedItem = await service.updateItem(
-      req.user.id,
-      req.params.id,
-      req.body.cantidad,
-    );
-    res.status(201).json(updatedItem);
+    const userId = req.user.sub;
+    const cart = await service.findCartByUser(userId);
+    res.json(cart);
   } catch (error) {
     next(error);
   }
 };
 
-export const removedCart = async (req, res, next) => {
+export const addItem = async (req, res, next) => {
   try {
-    const cartRemoved = await service.removeCart(req.params.id);
-    res.status(201).json(cartRemoved);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Parte de los items
-
-export const getOneItemCart = async (req, res, next) => {
-  try {
-    const result = await service.getOneItemCart(req.params.id);
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const addedProduct = async (req, res, next) => {
-  try {
-    const newItem = await service.addItem(req.body);
-    const user = req.user;
-    if (user.role !== 'admin' && user.sub.toString() !== id) {
-      throw boom.forbidden('No tienes permisos para realizar esa accion');
-    }
+    const userId = req.user.sub;
+    const body = req.body;
+    const newItem = await service.addItem(userId, body);
     res.status(201).json(newItem);
   } catch (error) {
     next(error);
   }
 };
 
-export const updatedCartItem = async (req, res, next) => {
+export const removeItem = async (req, res, next) => {
   try {
-    const updatedCartItem = await service.updateItem(
-      req.user.id,
-      req.params.id,
-      req.body.cantidad,
-    );
-    res.status(201).json(updatedCartItem);
+    const userId = req.user.sub;
+    const { id } = req.params;
+    const result = await service.removeItem(id, userId);
+
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }
 };
 
-export const removedItem = async (req, res, next) => {
+export const updateItem = async (req, res, next) => {
   try {
-    const cartItemId = req.params.id;
-    const result = await service.removeItem(cartItemId);
-    res.status(201).json(result);
+    const userId = req.user.sub;
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    const updatedItem = await service.updateItem(id, quantity, userId);
+
+    res.json(updatedItem);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllCarts = async (req, res, next) => {
+  try {
+    const carts = await service.find();
+    res.json(carts);
   } catch (error) {
     next(error);
   }

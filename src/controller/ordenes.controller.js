@@ -1,28 +1,32 @@
-import { OrderService } from '../services/order.service.js';
+import { OrderService } from '../services/ordenes.service.js';
 
 const service = new OrderService();
 
 export const getOneOrder = async (req, res, next) => {
   try {
-    const result = await service.findOne(req.params.id);
-    res.status(200).json(result);
+    const { id } = req.params;
+    const result = await service.findOne(id);
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-export const getAllOrders = async (req, res, next) => {
+export const getMyOrders = async (req, res, next) => {
   try {
-    const newOrder = await service.findUserAllOrders(req.user.id);
-    res.status(201).json(newOrder);
+    const userId = req.user.sub;
+    const orders = await service.findByUser(userId);
+    res.json(orders);
   } catch (error) {
     next(error);
   }
 };
 
-export const createdOrder = async (req, res, next) => {
+export const createOrder = async (req, res, next) => {
   try {
-    const newOrder = await service.create(req.user.id, req.body);
+    const userId = req.user.sub;
+    const { idAddress } = req.body;
+    const newOrder = await service.create(userId, idAddress);
     res.status(201).json(newOrder);
   } catch (error) {
     next(error);
@@ -31,31 +35,20 @@ export const createdOrder = async (req, res, next) => {
 
 export const updateOrder = async (req, res, next) => {
   try {
-    const newOrder = await service.updateOrder(
-      req.user.id,
-      req.body,
-      req.params.id,
-    );
-    res.status(201).json(newOrder);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const deletedOrder = async (req, res, next) => {
-  try {
-    const result = await service.deletedOrder(req.paramssssss.id);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const addItemOrder = async (req, res, next) => {
-  try {
+    const { id } = req.params;
     const body = req.body;
-    const newItem = await service.addItem(body);
-    res.status(201).json(newItem);
+    const order = await service.update(id, body);
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteOrder = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await service.delete(id);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }

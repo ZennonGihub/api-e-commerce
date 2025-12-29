@@ -1,37 +1,41 @@
-import { CustomerService } from './../services/customers.service.js';
+import { CustomerService } from '../services/customers.service.js';
 
 const service = new CustomerService();
 
-export const getList = async (req, res, next) => {
+export const getCustomers = async (req, res, next) => {
   try {
-    const result = await service.findAll();
+    const result = await service.find();
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createCustomer = async (req, res, next) => {
+  try {
+    const body = req.body;
+    const result = await service.create(body);
     res.status(201).json(result);
   } catch (error) {
     next(error);
   }
 };
 
-export const createdCustomer = async (req, res, next) => {
+export const updateCustomer = async (req, res, next) => {
   try {
-    const result = await service.create(req.body);
-    res.status(201).json(result);
+    const { id } = req.params;
+    const body = req.body;
+    const result = await service.update(id, body);
+    res.json(result);
   } catch (error) {
     next(error);
   }
 };
 
-export const updatedCustomer = async (req, res, next) => {
+export const deleteCustomer = async (req, res, next) => {
   try {
-    const result = await service.update(req.params.id, req.user.id, req.body);
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const removedCustomer = async (req, res, next) => {
-  try {
-    const result = await service.delete(req.params.id);
+    const { id } = req.params;
+    const result = await service.delete(id);
     res.status(201).json(result);
   } catch (error) {
     next(error);

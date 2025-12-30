@@ -56,6 +56,14 @@ export class ProductsService {
     return updatedProduct;
   }
 
+  async updateStatus(id, newIdStatus) {
+    const product = await this.findOne(id);
+    const newProduct = await product.update({
+      id_Status: newIdStatus,
+    });
+    return newProduct;
+  }
+
   async delete(id) {
     const product = await this.findOne(id);
     await product.destroy();

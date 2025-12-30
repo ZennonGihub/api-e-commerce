@@ -14,6 +14,7 @@ import {
   createProduct,
   updateProduct,
   deletedProduct,
+  updateProductStatus,
 } from '../controller/articulos.controller.js';
 
 const router = express.Router();
@@ -37,6 +38,15 @@ router.patch(
   validatorHandler(getProductSchema, 'params'),
   validatorHandler(updateProductSchema, 'body'),
   updateProduct,
+);
+
+router.patch(
+  '/statusUpdate/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
+  validatorHandler(getProductSchema, 'params'),
+  validatorHandler(updateProductSchema, 'body'),
+  updateProductStatus,
 );
 
 router.delete(

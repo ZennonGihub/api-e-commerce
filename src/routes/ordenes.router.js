@@ -11,6 +11,7 @@ import {
   getOneOrder,
   createdOrder,
   addItemOrder,
+  updateOrderStatus,
 } from '../controller/ordenes.controller.js';
 
 const router = express.Router();
@@ -28,6 +29,15 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   validatorHandler(createOrderSchema, 'body'),
   createdOrder,
+);
+
+router.patch(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  checkRoles('admin', 'seller'),
+  validatorHandler(getProductSchema, 'params'),
+  validatorHandler(updateProductSchema, 'body'),
+  updateOrderStatus,
 );
 
 router.post(

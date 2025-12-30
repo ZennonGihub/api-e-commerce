@@ -129,6 +129,35 @@ export class OrderService {
     return rta;
   }
 
+  async updateStatus(idOrder, newStatusId, notes) {
+    const transaction = await sequelize.transaction();
+
+    try {
+      const order = await models.Order.findByPk(idOrder);
+      if (!order) throw boom.notFound('Orden no encontrada');
+
+      await order.update(
+        { idStatus: newStatusId },
+        { transaction: transaction },
+      );
+
+      await models.OrderTracking.create(
+        {
+          idOrder: order.id,
+          idStatus: newStatusId,
+          notes: notes || 'Actualización de estado',
+        },
+        { transaction: transaction },
+      );
+
+      await transaction.commit();
+      return order;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
   async delete(id) {
     const order = await this.findOne(id);
     await order.destroy();

@@ -6,7 +6,7 @@ export const getOneOrder = async (req, res, next) => {
   try {
     const { id } = req.params;
     const result = await service.findOne(id);
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
@@ -16,7 +16,7 @@ export const getMyOrders = async (req, res, next) => {
   try {
     const userId = req.user.sub;
     const orders = await service.findByUser(userId);
-    res.json(orders);
+    res.status(200).json(orders);
   } catch (error) {
     next(error);
   }
@@ -38,7 +38,18 @@ export const updateOrder = async (req, res, next) => {
     const { id } = req.params;
     const body = req.body;
     const order = await service.update(id, body);
-    res.json(order);
+    res.status(201).json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateOrderStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const order = await service.updateStatus(id, body);
+    res.status(201).json(order);
   } catch (error) {
     next(error);
   }
